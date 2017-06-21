@@ -1,0 +1,11 @@
+Caro(a) [ nome ],
+
+viemos alertar que temos novidades:
+
+- [ msg ]
+
+Confira em: http://www.sr2.uerj.br/dci/index.php/editais
+
+Atc,
+
+Intercâmbio Alerta App.
