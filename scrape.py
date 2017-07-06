@@ -12,7 +12,7 @@ from parse_cadastros import *
 from log_generator import *
 #import boto3
 
-
+PATH = '/home/ttosto_estag/Thiago/Projetos/Globosat/Scrapy'
 
 def load_json(file):
 	with open(file) as json_file:
@@ -32,16 +32,16 @@ def diff(lista1, lista2):
 
 #carregando json com ultima atualização
 try:
-	last = load_json('result.json')
+	last = load_json(PATH +'/result.json')
 except:
 	raise
 
-with open('result.json', 'w') as result:
+with open(PATH +'/result.json', 'w') as result:
 	result.write('')
 
 settings = get_project_settings()
 settings.overrides['FEED_FORMAT'] = 'json'
-settings.overrides['FEED_URI'] = 'result.json'
+settings.overrides['FEED_URI'] = PATH + '/result.json'
 
 process = CrawlerProcess(settings)
 
@@ -50,7 +50,7 @@ process.crawl(IntercambioSpider)
 process.start() # the script will block here until the crawling is finished
 
 try:
-	current = load_json('result.json')
+	current = load_json(PATH +'/result.json')
 
 
 	if current == last:
@@ -60,10 +60,10 @@ try:
 	new = diff(current, last)
 
 	if new:
-		cadastrados = parse_cadastros('cadastros/cadastrados.txt')
+		cadastrados = parse_cadastros(PATH +'/cadastros/cadastrados.txt')
 
 		for cadastro in cadastrados:
-			send_email(cadastro['email'] ,{'subject':'alerta nova publicação', 'body': template_parser({'nome': cadastro['nome'], 'msg': new}, 'templates/alerta.txt')})
+			send_email(cadastro['email'] ,{'subject':'alerta nova publicação', 'body': template_parser({'nome': cadastro['nome'], 'msg': new}, PATH +'/templates/alerta.txt')})
 
 		log_generator('hit', "%s" % new)
 

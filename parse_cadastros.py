@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+#função recebe um arquivo de cadastro e devolve uma lista de dicionarios com cada cadastro
 def parse_cadastros(cadastros_file):
     cadastros_list = []
 
@@ -6,5 +9,5 @@ def parse_cadastros(cadastros_file):
 
         for cadastro in cadastros_raw:
             cadastros_list.append({'nome': cadastro.split(': ')[0], 'email': cadastro.split(': ')[1]})
-            
+
     return cadastros_list
