@@ -10,13 +10,19 @@ from send_email import *
 from template_parser import *
 from parse_cadastros import *
 from log_generator import *
+import sys
+import shutil
 #import boto3
 
 PATH = '/home/ttosto_estag/Thiago/Projetos/Globosat/Scrapy'
 
 def load_json(file):
-	with open(file) as json_file:
-		return json.load(json_file)
+	try:
+		with open(file) as json_file:
+			return json.load(json_file)
+	except ValueError:
+		raise
+		#sys.exit(0)
 
 #recebe duas listas e retorna o elemento diferente
 def diff(lista1, lista2):
@@ -29,6 +35,12 @@ def diff(lista1, lista2):
 			return lo['text'].encode('utf-8')
 
 	return False
+
+def recover():
+	with open(PATH +'/result.json', 'w') as result:
+		shutil.copyfile(PATH + '/result-bkp.json', PATH + '/result.json')
+
+
 
 #carregando json com ultima atualização
 try:
@@ -47,7 +59,13 @@ process = CrawlerProcess(settings)
 
 
 process.crawl(IntercambioSpider)
-process.start() # the script will block here until the crawling is finished
+try:
+	process.start() # the script will block here until the crawling is finished
+except:
+	print '\n\n\n\nPassei aqui\n\n\n\n\n'
+	recover()
+	log_generator('no_conection')
+
 
 try:
 	current = load_json(PATH +'/result.json')
@@ -59,16 +77,24 @@ try:
 
 	new = diff(current, last)
 
+	#se houver algo novo
 	if new:
+		#parseando contatos cadastrados
 		cadastrados = parse_cadastros(PATH +'/cadastros/cadastrados.txt')
 
+		#enviando para cada cadastrado
 		for cadastro in cadastrados:
 			send_email(cadastro['email'] ,{'subject':'alerta nova publicação', 'body': template_parser({'nome': cadastro['nome'], 'msg': new}, PATH +'/templates/alerta.txt')})
-
+		
+		#gerando log do hit
 		log_generator('hit', "%s" % new)
+		
+		#atualizando bkp
+		shutil.copyfile(PATH + '/result.json', PATH + '/result-bkp.json')
 
-except:
-	raise
+except ValueError:
+	log_generator('no_conection')
+	recover()
 
 #def lambda_handler(event, context):
 #    return 'Hello from Lambda'
