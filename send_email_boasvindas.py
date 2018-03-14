@@ -1,7 +1,7 @@
 #!/home/ttosto_estag/Thiago/Projetos/Globosat/Scrapy/bin/python
 # -*- coding: utf-8 -*-
 
-
+from log_generator import *
 from template_parser  import *
 from parse_cadastros import *
 from send_email import *
@@ -24,3 +24,5 @@ if novos != None:
         #atualizando o arquivo ultimos com os novos cadastrados
         with open(PATH + '/cadastros/.ultimos_cadastrados.txt', 'a') as f:
             f.write('%s: %s' % (novo['nome'], novo['email']))
+
+	log_generator('new_user', None, novo['nome'])
